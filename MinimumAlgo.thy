@@ -140,7 +140,8 @@ text "[i] A validator is slashed when it has sent a commit message of a hash
       that is not prepared yet."
 
 definition slashed_one :: "situation \<Rightarrow> validator \<Rightarrow> bool"
-where
+  where
+  -- {*TODO: why @{term "vs < v"} and not @{term "op\<le>"}?*}
 "slashed_one s n =
  (n \<in> Validators s \<and>
     (\<exists> h v.
