@@ -1,7 +1,6 @@
-session "dynamic" = "HOL" +
+session "Casper" = "HOL" +
   options [document = pdf, document_output = "output", document_variants="document:outline=/proof"]
-  theories [document = false]
   theories
-    DynamicValidatorSet
+    Casper
   document_files
     "root.tex"
