@@ -35,23 +35,20 @@
 
 \begin{document}
 
-\title{A small PoS protocol with dynamic validator set}
-\author{Yoichi Hirai\footnote{\texttt{i@yoichihirai.com}}}
+\title{Applying the EPR verification methodology to Casper}
+\author{Giuliano Losa}
 \maketitle
 
 \tableofcontents
+
+This is an experiment dating from 2017 in which I shortened an Isabelle/HOL proof by Yoichi Hirai from about 1000 lines to less than 100 by encoding things in EPR as much as possible.
+
+It seems that this proof was later re-used by Yoichi Hirai and then translated to Coq by Runtime Verification: \url{https://github.com/runtimeverification/casper-proofs/blob/master/Core/AccountableSafety.v}, although the attribution to me was lost in the process.
 
 % sane default for proof documents
 \parindent 0pt\parskip 0.5ex
 
 \newpage
-
-\begin{itemize}
-\item This is a formalization attempt of Vitalik Buterin ``Safety Under Dynamic Validator Sets'' \url{https://medium.com/@VitalikButerin/safety-under-dynamic-validator-sets-ef0c3bbdf9f6#.8eojzbyou}
-\item This document is produced from the code available at
-\url{https://github.com/pirapira/pos}.
-\item To get updates on this project and similar ones, follow \url{http://gitter.im/ethereum/formal-methods} or \url{https://gitter.im/ethereum/research}.
-\end{itemize}
 
 % generated text of all theories
 \input{session}
