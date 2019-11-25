@@ -2,32 +2,36 @@ theory Casper
   imports Main
 begin
 
-text {* We use first-order modeling as much as possible. This allows to reduce the size of the model, 
-  and also the size of the proofs from more than 1000 lines in Yoichi's proof to less than a 100. *}
+text \<open>Here we prove that the slashing conditions in Casper, as described at the url below by Vitalik Buterin, 
+are such that if there is a fork, then one third of the validators are "slashed".
+\<^url>\<open>https://medium.com/@VitalikButerin/minimal-slashing-conditions-20f0b500fc6c\<close> \<close>
+
+text \<open> We use first-order modeling as much as possible. This allows to reduce the size of the model, 
+  and also the size of the proofs from more than 1000 lines in Yoichi's proof to less than a 100. \<close>
 
 locale byz_quorums =
-  -- "Here we fix two types @{typ 'q1} and @{typ 'q2} for quorums of cardinality greater than 2/3 of 
-the validators and quorum of cardinality greater than 1/3 of the validators."
+  \<comment> \<open> "Here we fix two types @{typ 'q1} and @{typ 'q2} for quorums of cardinality greater than 2/3 of 
+the validators and quorum of cardinality greater than 1/3 of the validators.\<close>
   fixes member_1 :: "'n \<Rightarrow> 'q1 \<Rightarrow> bool" (infix "\<in>\<^sub>1" 50)
-    -- "Membership in 2/3 set"
+    \<comment> \<open> Membership in 2/3 set\<close>
     and member_2 :: "'n \<Rightarrow> 'q2 \<Rightarrow> bool" (infix "\<in>\<^sub>2" 50)
-    -- "Membership in 1/3 set"
+    \<comment> \<open> Membership in 1/3 set\<close>
   assumes "\<And> q1 q2 . \<exists> q3 . \<forall> n . n \<in>\<^sub>2 q3 \<longrightarrow> n \<in>\<^sub>1 q1 \<and> n \<in>\<^sub>1 q2"  
-    -- "This is the only property of types @{typ 'q1} and @{typ 'q2} that we need: 
-2/3 quorums have 1/3 intersection"
+    \<comment> \<open> This is the only property of types @{typ 'q1} and @{typ 'q2} that we need: 
+2/3 quorums have 1/3 intersection\<close>
 
 record ('n,'h)state =
-  -- "@{typ 'n} is the type of validators (nodes), @{typ 'h} hashes, and views are @{typ nat}"
+  \<comment> \<open> "@{typ 'n} is the type of validators (nodes), @{typ 'h} hashes, and views are @{typ nat}\<close>
   commit_msg :: "'n \<Rightarrow> 'h \<Rightarrow> nat \<Rightarrow> bool"
   prepare_msg :: "'n \<Rightarrow> 'h \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> bool"
 
 locale casper = byz_quorums +
-  -- "Here we make assumptions about hashes. In reality any message containing a hash not satisfying those
-should be dropped."
+  \<comment> \<open> Here we make assumptions about hashes. In reality any message containing a hash not satisfying those
+should be dropped.\<close>
 fixes 
   hash_parent :: "'h \<Rightarrow> 'h \<Rightarrow> bool" (infix "\<leftarrow>" 50)
 assumes
-  -- "a hash has at most one parent which is not itself"
+  \<comment> \<open> "a hash has at most one parent which is not itself\<close>
   "\<And> h1 h2 . h1 \<leftarrow> h2 \<Longrightarrow> h1 \<noteq> h2"
   and "\<And> h1 h2 h3 . \<lbrakk>h2 \<leftarrow> h1; h3 \<leftarrow> h1\<rbrakk> \<Longrightarrow> h2 = h3"
 begin
@@ -50,7 +54,7 @@ inductive_cases zeroth_ancestor:"nth_ancestor 0 h1 h3"
 lemma parent_ancestor:"h1 \<leftarrow> h2 = nth_ancestor 1 h1 h2"
   by (metis One_nat_def add.right_neutral add_Suc_right add_diff_cancel_left' diff_Suc_Suc nat.simps(3) nth_ancestor.simps)
 
-text {* All messages in epoch @{term "0::nat"} are ignored;  @{term "0::nat"} is used as a special value (was @{term "-1::int"} in the original model). *}
+text \<open> All messages in epoch @{term "0::nat"} are ignored;  @{term "0::nat"} is used as a special value (was @{term "-1::int"} in the original model). \<close>
 definition prepared' where
   "prepared' s q h v1 v2 \<equiv> v1 \<noteq> 0 \<and> (\<forall> n . n \<in>\<^sub>1 q \<longrightarrow> prepare_msg s n h v1 v2)"
 definition prepared where
@@ -105,7 +109,7 @@ lemma l3: assumes "prepared s q1 h1 v1 v2" and "committed s q2 h2 v3" and "v1 > 
 proof -
   show ?thesis using assms
   proof (induct "v1 - v3" arbitrary: v1 v2 v3 q1 q2 h1 h2 rule:less_induct)
-    -- "This is complete induction"
+    \<comment> \<open> "This is complete induction\<close>
     case less then show ?case 
     proof (cases "v1-v3=0")
       case True then show ?thesis using less.prems(3) by linarith  
@@ -132,7 +136,7 @@ proof -
   qed
 qed
 
-lemma l4:assumes "nth_ancestor n (h1::'h) h2" shows "h1 \<leftarrow>\<^sup>* h2 \<or> h1 = h2" using assms
+lemma l4:assumes "nth_ancestor n h1 h2" shows "h1 \<leftarrow>\<^sup>* h2 \<or> h1 = h2" using assms
 proof (induct n arbitrary:h1 h2)
   case 0 then show ?case using zeroth_ancestor by auto
 next
